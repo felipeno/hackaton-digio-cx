@@ -1,8 +1,8 @@
 import datetime
-from typing import Dict, List
 import uuid
-
 import banco_de_dados
+
+from typing import Dict, List
 
 
 class Core:
