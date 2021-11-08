@@ -79,16 +79,19 @@ class Core:
         if acao.get('comunicacaoExterna').get('minimoOcorrencia') <= quantidade_de_ocorrencias:
             msg_return['Externo'] = (
                 f"Mensagem '{acao.get('comunicacaoExterna').get('mensagem')}' "
-                f"enviada para os clientes pelo canal '{acao.get('comunicacaoExterna').get('canal')}' \n"
+                f"enviada para os clientes pelo canal '{acao.get('comunicacaoExterna').get('canal')}'"
             )  # Comunica externamente
 
         for i in range(1, len(acao.get('comunicacaoInterna'))+1):
-            if (acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') is not None and \
-                    acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') <= quantidade_de_ocorrencias) or \
+            if (acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') is not None and
+                acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') <= quantidade_de_ocorrencias) or \
                     (int((datetime.datetime.now() - self.retornar_incidente(gatilho).get('dataInicio')).seconds/60) >= acao.get('comunicacaoInterna')[-i].get('tempoOcorrendo')):
                 msg_return['Interno'] = (
                     f"Comunicado de alerta enviado para '{acao.get('comunicacaoInterna')[-i].get('paraQuem')}"
                 )
-                return msg_return
+                break
+
+        if msg_return.get('Externo') or msg_return.get('Interno'):
+            return msg_return
 
         return {'message': 'Problema contabilizado.'}
