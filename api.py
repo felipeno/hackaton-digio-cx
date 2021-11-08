@@ -19,9 +19,9 @@ core = Core()
 async def entrada(gatilhos: Gatilhos):
     if core.valida_incidente(gatilhos):
         core.contabiliza_ocorrencia(gatilhos)
-        core.comunicacao(gatilhos)
+        return core.comunicacao(gatilhos)
     else:
-        core.cria_incidente(gatilhos)
+        return core.cria_incidente(gatilhos)
 
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', port=8000)

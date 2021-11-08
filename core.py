@@ -58,29 +58,37 @@ class Core:
             acoes_tmp.append(self.retorna_acao(gatilho).get('codigo'))
             novo_incidente.update({'acoes': acoes_tmp})
             self.base_incidentes.append(novo_incidente)
+            return {'message': 'Incidente criado e relacionado à ação.'}
         else:
-            print('Necessário criar uma nova ação para esse problema. Time XPTO acionado para cadastro.')
+            return {'message': 'Necessário criar uma nova ação para esse problema. Time XPTO acionado para cadastro.'}
 
     def contabiliza_ocorrencia(self, gatilho: List[Dict]):
         incidente = self.retornar_incidente(gatilho)
         incidente['ocorrencias'] += 1
 
     def comunicacao(self, gatilho: List[Dict]):
+        msg_return = {
+            'Externo': '',
+            'Interno': ''
+        }
+
         quantidade_de_ocorrencias = self.retornar_incidente(gatilho).get('ocorrencias')
 
         acao = self.retorna_acao(gatilho)
 
         if acao.get('comunicacaoExterna').get('minimoOcorrencia') <= quantidade_de_ocorrencias:
-            print(
+            msg_return['Externo'] = (
                 f"Mensagem '{acao.get('comunicacaoExterna').get('mensagem')}' "
-                f"enviada para os clientes pelo canal '{acao.get('comunicacaoExterna').get('canal')}'"
+                f"enviada para os clientes pelo canal '{acao.get('comunicacaoExterna').get('canal')}' \n"
             )  # Comunica externamente
 
         for i in range(1, len(acao.get('comunicacaoInterna'))+1):
             if (acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') is not None and \
                     acao.get('comunicacaoInterna')[-i].get('volumeOcorrencias') <= quantidade_de_ocorrencias) or \
                     (int((datetime.datetime.now() - self.retornar_incidente(gatilho).get('dataInicio')).seconds/60) >= acao.get('comunicacaoInterna')[-i].get('tempoOcorrendo')):
-                print(
+                msg_return['Interno'] = (
                     f"Comunicado de alerta enviado para '{acao.get('comunicacaoInterna')[-i].get('paraQuem')}"
                 )
-                break
+                return msg_return
+
+        return {'message': 'Problema contabilizado.'}
